@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import { useNavigate } from 'react-router-dom';
+import './CatalogoPage.css';
 
 import { obtenerProductos } from '../lib/productos';
+import { obtenerInventario } from '../lib/inventario';
 import { crearPedido } from '../lib/pedidos';
 import {
   getAuthInfo,
@@ -11,6 +13,10 @@ import {
 
 import type { Producto } from '../types/Producto';
 
+type ProductoCatalogo = Producto & {
+  stockDisponible: number;
+};
+
 export default function CatalogoPage() {
   const { user } = useAuthenticator((context) => [
     context.user,
@@ -18,7 +24,9 @@ export default function CatalogoPage() {
 
   const navigate = useNavigate();
 
-  const [productos, setProductos] = useState<Producto[]>([]);
+  const [productos, setProductos] = useState<
+    ProductoCatalogo[]
+  >([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
 
@@ -40,10 +48,23 @@ export default function CatalogoPage() {
   useEffect(() => {
     let activo = true;
 
-    obtenerProductos()
-      .then((datos) => {
+    Promise.all([obtenerProductos(), obtenerInventario()])
+      .then(([datos, inventario]) => {
         if (activo) {
-          setProductos(datos);
+          const stockPorProducto = new Map(
+            inventario.map((registro) => [
+              registro.productoId,
+              registro.stockDisponible,
+            ]),
+          );
+
+          const productosConStock = datos.map((producto) => ({
+            ...producto,
+            stockDisponible:
+              stockPorProducto.get(producto.id) ?? 0,
+          }));
+
+          setProductos(productosConStock);
 
           const cantidadesIniciales =
             datos.reduce<Record<number, number>>(
@@ -150,14 +171,7 @@ export default function CatalogoPage() {
 
   if (cargando) {
     return (
-      <main
-        style={{
-          padding: 32,
-          maxWidth: 1200,
-          margin: '0 auto',
-          fontFamily: 'system-ui',
-        }}
-      >
+      <main className="catalogo-page catalogo-page__loading">
         <p>Cargando catálogo...</p>
       </main>
     );
@@ -165,25 +179,10 @@ export default function CatalogoPage() {
 
   if (error) {
     return (
-      <main
-        style={{
-          padding: 32,
-          maxWidth: 1200,
-          margin: '0 auto',
-          fontFamily: 'system-ui',
-        }}
-      >
+      <main className="catalogo-page">
         <h1>Catálogo</h1>
 
-        <div
-          style={{
-            padding: 20,
-            border: '1px solid #fecaca',
-            background: '#fef2f2',
-            color: '#991b1b',
-            borderRadius: 10,
-          }}
-        >
+        <div className="catalogo-page__error">
           {error}
         </div>
       </main>
@@ -191,136 +190,55 @@ export default function CatalogoPage() {
   }
 
   return (
-    <main
-      style={{
-        padding: '32px 24px',
-        fontFamily: 'system-ui',
-        maxWidth: 1200,
-        margin: '0 auto',
-      }}
-    >
-      <header style={{ marginBottom: 28 }}>
-        <h1 style={{ marginBottom: 8 }}>
-          Catálogo de productos
-        </h1>
+    <main className="catalogo-page">
+      <header className="catalogo-page__header">
+        <h1>Catálogo de productos</h1>
 
-        <p
-          style={{
-            margin: 0,
-            color: '#4b5563',
-          }}
-        >
+        <p className="catalogo-page__intro">
           Explora los productos disponibles en Pedidos360.
         </p>
       </header>
 
       {mensaje && (
-        <div
-          style={{
-            padding: 20,
-            marginBottom: 24,
-            borderRadius: 10,
-            border: '1px solid #a7f3d0',
-            background: '#ecfdf5',
-            color: '#065f46',
-          }}
-        >
+        <div className="catalogo-page__success">
           <strong>Pedido realizado correctamente.</strong>
 
-          <p style={{ margin: '8px 0 16px' }}>
-            {mensaje}
-          </p>
+          <p>{mensaje}</p>
 
-          <button
-            onClick={() => navigate('/cliente')}
-            style={{
-              cursor: 'pointer',
-              padding: '8px 14px',
-            }}
-          >
+          <button onClick={() => navigate('/cliente')}>
             Ver mis pedidos
           </button>
         </div>
       )}
 
       {errorPedido && (
-        <div
-          style={{
-            padding: 20,
-            marginBottom: 24,
-            borderRadius: 10,
-            border: '1px solid #fecaca',
-            background: '#fef2f2',
-            color: '#991b1b',
-          }}
-        >
+        <div className="catalogo-page__error">
           <strong>
             No se pudo realizar el pedido.
           </strong>
 
-          <p style={{ marginBottom: 0 }}>
-            {errorPedido}
-          </p>
+          <p>{errorPedido}</p>
         </div>
       )}
 
       {productos.length === 0 ? (
-        <div
-          style={{
-            padding: 32,
-            borderRadius: 10,
-            border: '1px solid #e5e7eb',
-            background: '#f9fafb',
-          }}
-        >
+        <div className="catalogo-page__empty">
           No hay productos disponibles.
         </div>
       ) : (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns:
-              'repeat(auto-fit, minmax(260px, 1fr))',
-            gap: 20,
-          }}
-        >
+        <div className="catalogo-page__grid">
           {productos.map((producto) => {
             const procesando =
               productoProcesando === producto.id;
 
             return (
-              <article
-                key={producto.id}
-                style={{
-                  border: '1px solid #e5e7eb',
-                  borderRadius: 12,
-                  padding: 24,
-                  background: '#ffffff',
-                  boxShadow:
-                    '0 1px 3px rgba(0, 0, 0, 0.08)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                }}
-              >
-                <div style={{ flex: 1 }}>
-                  <div
-                    style={{
-                      color: '#6b7280',
-                      fontSize: 13,
-                      marginBottom: 6,
-                    }}
-                  >
+              <article key={producto.id} className="catalogo-product-card">
+                <div className="catalogo-product-card__content">
+                  <div className="catalogo-product-card__category">
                     {producto.categoria}
                   </div>
 
-                  <h2
-                    style={{
-                      marginTop: 0,
-                      marginBottom: 16,
-                    }}
-                  >
-                    {producto.modelo}
-                  </h2>
+                  <h2>{producto.modelo}</h2>
 
                   <p>
                     <strong>Marca:</strong>{' '}
@@ -332,23 +250,18 @@ export default function CatalogoPage() {
                     {producto.talla}
                   </p>
 
+                  <p>
+                    <strong>Stock disponible:</strong>{' '}
+                    {producto.stockDisponible}
+                  </p>
+
                   {producto.descripcion && (
-                    <p
-                      style={{
-                        color: '#4b5563',
-                      }}
-                    >
+                    <p className="catalogo-product-card__description">
                       {producto.descripcion}
                     </p>
                   )}
 
-                  <p
-                    style={{
-                      fontSize: 22,
-                      fontWeight: 700,
-                      marginTop: 20,
-                    }}
-                  >
+                  <p className="catalogo-product-card__price">
                     {formatoPrecio.format(
                       producto.precio,
                     )}
@@ -356,20 +269,9 @@ export default function CatalogoPage() {
                 </div>
 
                 {authInfo?.isCliente && (
-                  <div
-                    style={{
-                      marginTop: 20,
-                      paddingTop: 20,
-                      borderTop: '1px solid #e5e7eb',
-                    }}
-                  >
+                  <div className="catalogo-product-card__order">
                     <label
                       htmlFor={`cantidad-${producto.id}`}
-                      style={{
-                        display: 'block',
-                        fontWeight: 600,
-                        marginBottom: 8,
-                      }}
                     >
                       Cantidad
                     </label>
@@ -389,14 +291,7 @@ export default function CatalogoPage() {
                           Number(event.target.value),
                         )
                       }
-                      style={{
-                        width: 90,
-                        padding: '8px 10px',
-                        marginBottom: 14,
-                        border:
-                          '1px solid #d1d5db',
-                        borderRadius: 6,
-                      }}
+                      className="catalogo-product-card__quantity"
                     />
 
                     <button
@@ -404,15 +299,7 @@ export default function CatalogoPage() {
                         realizarPedido(producto)
                       }
                       disabled={procesando}
-                      style={{
-                        display: 'block',
-                        width: '100%',
-                        padding: '10px 14px',
-                        cursor: procesando
-                          ? 'not-allowed'
-                          : 'pointer',
-                        fontWeight: 700,
-                      }}
+                      className="catalogo-product-card__order-button"
                     >
                       {procesando
                         ? 'Procesando...'
