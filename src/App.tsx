@@ -10,6 +10,8 @@ import ClientePage from './pages/ClientePage';
 import AdminPage from './pages/AdminPage';
 import CatalogoPage from './pages/CatalogoPage';
 
+import AppLayout from './components/AppLayout';
+
 import ProtectedRoute from './routes/ProtectedRoute';
 import RoleRoute from './routes/RoleRoute';
 
@@ -22,36 +24,52 @@ export default function App() {
       />
 
       <Route element={<ProtectedRoute />}>
-        <Route
-          path="/"
-          element={<IntegrationPage />}
-        />
-
-        <Route
-          path="/catalogo"
-          element={<CatalogoPage />}
-        />
-
-        <Route
-          element={
-            <RoleRoute allowedRoles={['CLIENTE']} />
-          }
-        >
+        <Route element={<AppLayout />}>
           <Route
-            path="/cliente"
-            element={<ClientePage />}
+            path="/"
+            element={
+              <Navigate
+                to="/catalogo"
+                replace
+              />
+            }
           />
-        </Route>
 
-        <Route
-          element={
-            <RoleRoute allowedRoles={['ADMIN']} />
-          }
-        >
           <Route
-            path="/admin"
-            element={<AdminPage />}
+            path="/catalogo"
+            element={<CatalogoPage />}
           />
+
+          <Route
+            path="/diagnostico"
+            element={<IntegrationPage />}
+          />
+
+          <Route
+            element={
+              <RoleRoute
+                allowedRoles={['CLIENTE']}
+              />
+            }
+          >
+            <Route
+              path="/cliente"
+              element={<ClientePage />}
+            />
+          </Route>
+
+          <Route
+            element={
+              <RoleRoute
+                allowedRoles={['ADMIN']}
+              />
+            }
+          >
+            <Route
+              path="/admin"
+              element={<AdminPage />}
+            />
+          </Route>
         </Route>
       </Route>
 
