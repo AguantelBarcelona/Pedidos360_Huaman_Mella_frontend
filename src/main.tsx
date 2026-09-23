@@ -2,7 +2,10 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Amplify } from 'aws-amplify';
 import { Authenticator } from '@aws-amplify/ui-react';
+import { BrowserRouter } from 'react-router-dom';
+
 import '@aws-amplify/ui-react/styles.css';
+
 import App from './App';
 import { config } from './config';
 
@@ -15,10 +18,14 @@ Amplify.configure({
   },
 });
 
-createRoot(document.getElementById('root')!).render(
+createRoot(
+  document.getElementById('root')!,
+).render(
   <StrictMode>
     <Authenticator.Provider>
-      <App />
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
     </Authenticator.Provider>
   </StrictMode>,
 );
