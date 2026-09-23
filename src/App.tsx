@@ -8,6 +8,7 @@ import LoginPage from './pages/LoginPage';
 import IntegrationPage from './pages/IntegrationPage';
 import ClientePage from './pages/ClientePage';
 import AdminPage from './pages/AdminPage';
+import CatalogoPage from './pages/CatalogoPage';
 
 import ProtectedRoute from './routes/ProtectedRoute';
 import RoleRoute from './routes/RoleRoute';
@@ -24,6 +25,11 @@ export default function App() {
         <Route
           path="/"
           element={<IntegrationPage />}
+        />
+
+        <Route
+          path="/catalogo"
+          element={<CatalogoPage />}
         />
 
         <Route
