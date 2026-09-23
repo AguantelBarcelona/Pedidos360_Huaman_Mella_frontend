@@ -52,6 +52,44 @@ export default function IntegrationPage() {
     }
   }
 
+  async function crearPedidoPrueba() {
+    if (!email) {
+      setResultado(
+        'No se pudo obtener el correo del usuario autenticado.',
+      );
+      return;
+    }
+
+    setResultado('Creando pedido...');
+
+    try {
+      const respuesta = await apiFetch('/api/pedidos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          clienteEmail: email,
+          productoId: 1,
+          cantidad: 1,
+        }),
+      });
+
+      const texto = await respuesta.text();
+
+      setResultado(
+        `POST /api/pedidos -> ${respuesta.status}\n${texto.slice(
+          0,
+          1000,
+        )}`,
+      );
+    } catch (error) {
+      setResultado(
+        `Error: ${(error as Error).message}`,
+      );
+    }
+  }
+
   return (
     <div
       style={{
@@ -117,6 +155,10 @@ export default function IntegrationPage() {
           onClick={() => probar('/api/inventario')}
         >
           GET inventario
+        </button>
+
+        <button onClick={crearPedidoPrueba}>
+          POST pedido de prueba
         </button>
 
         <button
