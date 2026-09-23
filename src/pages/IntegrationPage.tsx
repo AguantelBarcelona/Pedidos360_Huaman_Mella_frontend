@@ -102,6 +102,12 @@ export default function IntegrationPage() {
         </button>
 
         <button
+          onClick={() => probar('/api/pedidos/mios')}
+        >
+          GET mis pedidos
+        </button>
+
+        <button
           onClick={() => probar('/api/productos')}
         >
           GET productos
