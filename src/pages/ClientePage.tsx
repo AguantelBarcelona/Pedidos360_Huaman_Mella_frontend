@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import './ClientePage.css';
 
 import { obtenerMisPedidos } from '../lib/pedidos';
 import type { Pedido } from '../types/Pedido';
@@ -55,50 +56,21 @@ export default function ClientePage() {
   });
 
   return (
-    <main
-      style={{
-        maxWidth: 1100,
-        margin: '0 auto',
-        padding: '32px 24px',
-        fontFamily: 'system-ui',
-      }}
-    >
-      <header style={{ marginBottom: 32 }}>
-        <h1 style={{ marginBottom: 8 }}>
-          Mi cuenta
-        </h1>
+    <main className="cliente-page">
+      <header className="cliente-page__header">
+        <h1>Mi cuenta</h1>
 
-        <p
-          style={{
-            margin: 0,
-            color: '#4b5563',
-          }}
-        >
+        <p className="cliente-page__intro">
           Consulta los pedidos asociados a tu cuenta.
         </p>
       </header>
 
       <section>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 16,
-            marginBottom: 20,
-          }}
-        >
-          <h2 style={{ margin: 0 }}>
-            Mis pedidos
-          </h2>
+        <div className="cliente-page__section-header">
+          <h2>Mis pedidos</h2>
 
           {!cargando && !error && (
-            <span
-              style={{
-                color: '#6b7280',
-                fontSize: 14,
-              }}
-            >
+            <span className="cliente-page__count">
               {pedidos.length}{' '}
               {pedidos.length === 1
                 ? 'pedido'
@@ -108,60 +80,28 @@ export default function ClientePage() {
         </div>
 
         {cargando && (
-          <div
-            style={{
-              padding: 24,
-              border: '1px solid #e5e7eb',
-              borderRadius: 10,
-              background: '#ffffff',
-            }}
-          >
+          <div className="cliente-page__message">
             Cargando pedidos...
           </div>
         )}
 
         {!cargando && error && (
-          <div
-            style={{
-              padding: 20,
-              border: '1px solid #fecaca',
-              borderRadius: 10,
-              background: '#fef2f2',
-              color: '#991b1b',
-            }}
-          >
+          <div className="cliente-page__error">
             <strong>
               No se pudieron cargar los pedidos.
             </strong>
 
-            <p style={{ marginBottom: 0 }}>
-              {error}
-            </p>
+            <p>{error}</p>
           </div>
         )}
 
         {!cargando &&
           !error &&
           pedidos.length === 0 && (
-            <div
-              style={{
-                padding: 32,
-                textAlign: 'center',
-                border: '1px solid #e5e7eb',
-                borderRadius: 10,
-                background: '#f9fafb',
-              }}
-            >
-              <h3 style={{ marginTop: 0 }}>
-                Aún no tienes pedidos
-              </h3>
+            <div className="cliente-page__empty">
+              <h3>Aún no tienes pedidos</h3>
 
-              <p
-                style={{
-                  marginBottom: 0,
-                  color: '#6b7280',
-                }}
-              >
+              <p className="cliente-page__empty-description">
                 Los pedidos que realices aparecerán
                 en esta sección.
               </p>
@@ -171,50 +111,17 @@ export default function ClientePage() {
         {!cargando &&
           !error &&
           pedidos.length > 0 && (
-            <div
-              style={{
-                display: 'grid',
-                gap: 16,
-              }}
-            >
+            <div className="cliente-page__orders">
               {pedidos.map((pedido) => (
                 <article
                   key={pedido.id}
-                  style={{
-                    padding: 24,
-                    border: '1px solid #e5e7eb',
-                    borderRadius: 12,
-                    background: '#ffffff',
-                    boxShadow:
-                      '0 1px 3px rgba(0, 0, 0, 0.08)',
-                  }}
+                  className="cliente-page__order-card"
                 >
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent:
-                        'space-between',
-                      alignItems: 'flex-start',
-                      gap: 16,
-                      flexWrap: 'wrap',
-                      marginBottom: 20,
-                    }}
-                  >
+                  <div className="cliente-page__order-header">
                     <div>
-                      <h3
-                        style={{
-                          margin: '0 0 6px',
-                        }}
-                      >
-                        Pedido #{pedido.id}
-                      </h3>
+                      <h3>Pedido #{pedido.id}</h3>
 
-                      <span
-                        style={{
-                          color: '#6b7280',
-                          fontSize: 14,
-                        }}
-                      >
+                      <span className="cliente-page__date">
                         {formatoFecha.format(
                           new Date(
                             pedido.fechaCreacion,
@@ -223,38 +130,14 @@ export default function ClientePage() {
                       </span>
                     </div>
 
-                    <span
-                      style={{
-                        padding: '6px 12px',
-                        borderRadius: 999,
-                        background: '#ecfdf5',
-                        color: '#047857',
-                        fontWeight: 700,
-                        fontSize: 13,
-                      }}
-                    >
+                    <span className="cliente-page__status">
                       {pedido.estado}
                     </span>
                   </div>
 
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns:
-                        'repeat(auto-fit, minmax(160px, 1fr))',
-                      gap: 20,
-                    }}
-                  >
+                  <div className="cliente-page__details">
                     <div>
-                      <div
-                        style={{
-                          color: '#6b7280',
-                          fontSize: 13,
-                          marginBottom: 4,
-                        }}
-                      >
-                        Producto
-                      </div>
+                      <div className="cliente-page__label">Producto</div>
 
                       <strong>
                         Producto #{pedido.productoId}
@@ -262,15 +145,7 @@ export default function ClientePage() {
                     </div>
 
                     <div>
-                      <div
-                        style={{
-                          color: '#6b7280',
-                          fontSize: 13,
-                          marginBottom: 4,
-                        }}
-                      >
-                        Cantidad
-                      </div>
+                      <div className="cliente-page__label">Cantidad</div>
 
                       <strong>
                         {pedido.cantidad}
@@ -278,13 +153,7 @@ export default function ClientePage() {
                     </div>
 
                     <div>
-                      <div
-                        style={{
-                          color: '#6b7280',
-                          fontSize: 13,
-                          marginBottom: 4,
-                        }}
-                      >
+                      <div className="cliente-page__label">
                         Precio unitario
                       </div>
 
@@ -296,21 +165,9 @@ export default function ClientePage() {
                     </div>
 
                     <div>
-                      <div
-                        style={{
-                          color: '#6b7280',
-                          fontSize: 13,
-                          marginBottom: 4,
-                        }}
-                      >
-                        Total
-                      </div>
+                      <div className="cliente-page__label">Total</div>
 
-                      <strong
-                        style={{
-                          fontSize: 18,
-                        }}
-                      >
+                      <strong className="cliente-page__total">
                         {formatoPrecio.format(
                           pedido.total,
                         )}
