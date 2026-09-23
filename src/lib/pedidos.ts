@@ -19,6 +19,18 @@ export async function obtenerMisPedidos(): Promise<Pedido[]> {
   return respuesta.json() as Promise<Pedido[]>;
 }
 
+export async function obtenerTodosLosPedidos(): Promise<Pedido[]> {
+  const respuesta = await apiFetch('/api/pedidos');
+
+  if (!respuesta.ok) {
+    throw new Error(
+      `No fue posible obtener todos los pedidos (${respuesta.status})`,
+    );
+  }
+
+  return respuesta.json() as Promise<Pedido[]>;
+}
+
 export async function crearPedido(
   datos: CrearPedidoRequest,
 ): Promise<Pedido> {
