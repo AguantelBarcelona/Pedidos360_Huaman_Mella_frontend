@@ -20,6 +20,9 @@ Para instalar las dependencias:
 npm install
 ```
 
+
+## Diagrama de Arquitectura AWS
+
 ```mermaid
 flowchart TB
     USR(("Usuario<br/>ADMIN / CLIENTE"))
